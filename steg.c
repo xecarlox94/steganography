@@ -70,7 +70,7 @@ struct Pixel writeToPixel(int val)
 
 }
 
-int readPixelValue(struct Pixel pixel)
+int readPixelValue(struct Pixel pixel, int length)
 {
     
 }
@@ -108,6 +108,10 @@ int main(int argc, char ** argv)
         intToBin(i);
         printf("\n");
     }
+
+
+
+
     
     
     int n = 170;
@@ -136,6 +140,11 @@ int main(int argc, char ** argv)
     printf("number 3: ");
     intToBin(temp);
     printf("\n");
+
+
+
+
+
 
 
     // fclose(file);  RETURNS ERROR !!!!!!!!!!!!!!!
