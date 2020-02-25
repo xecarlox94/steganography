@@ -26,9 +26,54 @@ struct PPM * getPPM(FILE * f);
 
 void showPPM(struct PPM * im);
 
+void intToBin(unsigned int number){
+    if (number > 1){
+        intToBin(number/2);
+    }
+
+    printf("%u",number % 2);
+};
+
+void printPixel(struct Pixel pixel){
+    
+}
+
+int auxNumber(int n)
+{
+    if( n == 0) return 0;
+
+    if( n == 1) return 1;
+    
+    return (auxNumber(n - 1) << 1) | 1;
+}
+
+
+
+int compAuxNumber(int n)
+{
+    return ~auxNumber(n);
+}
+
+int writeNumber(int prevNumber, int length, int number)
+{
+    number = number & auxNumber(length);
+    return (prevNumber & compAuxNumber(length)) | number;
+}
+
+int readNumber(int prevNumber, int length)
+{
+    return prevNumber & auxNumber(length); 
+}
+
+// struct Pixel writeToPixel(int val)
+// {
+
+// }
+
 int main(int argc, char ** argv)
 {
     FILE * file;
+    struct PPM * ppm;
 
     if (argc < 3 || argc > 5)
     {
@@ -45,18 +90,46 @@ int main(int argc, char ** argv)
     }
     
     
-    struct PPM * ppm = getPPM(file);
+    ppm = getPPM(file);
 
-    showPPM(ppm);
-
-
+    // showPPM(ppm);
 
 
+
+    
+    for (size_t i = 0; i < 65; i++)
+    {
+        printf("%d: ", i);
+        intToBin(i);
+        printf("\n");
+    }
+    
+    
+    int n = 42;
+
+    printf("original number: ");
+    intToBin(n);
+    printf("\n");
+
+    // n = n | 8;
+    // n = n >> 3;
+
+    int temp = (n >> 0) | 8;
+
+    printf("number 1: ");
+    intToBin(temp);
+    printf("\n");
+
+    temp = (n >> 3) | 8;
+
+    printf("number 2: ");
+    intToBin(temp);
+    printf("\n");
 
 
     // fclose(file);  RETURNS ERROR !!!!!!!!!!!!!!!
 
-    // printf("\n\nppm\n{\n\twidth: %d;\n\theight: %d;\n\tcolourMax: %d;\n{\n", ppm->width,ppm->height,(int) ppm->colourMax);
+    // printf("\n\nppm\n{\n\twidth: %u;\n\theight: %u;\n\tcolourMax: %u;\n{\n", ppm->width,ppm->height,(int) ppm->colourMax);
 
 
     free(file);
@@ -78,15 +151,15 @@ void showPPM(struct PPM * im)
 {
     printf("printing ppm file\n");
     printf("\n%s\n", im->format);
-    printf("%d %d\n", im->width, im->height);
-    printf("%d\n",im->colourMax);
+    printf("%u %u\n", im->width, im->height);
+    printf("%u\n",im->colourMax);
 
     for (size_t i = 0; i < im->width; i++)
     {
         for (size_t j = 0; j < im->height; j++)
         {
             struct Pixel pxl = im->pixelMatrix[i][j];
-            printf("%d %d %d\n", pxl.red, pxl.green, pxl.blue);
+            printf("%u %u %u\n", pxl.red, pxl.green, pxl.blue);
         }
     }
 
@@ -122,7 +195,7 @@ struct PPM * getPPM(FILE * f)
             continue;
         }
         
-        // printf("\n%c,(%d) -> previous: %c,(%d)",ch,(int) ch, prevCh, (int) prevCh);
+        // printf("\n%c,(%u) -> previous: %c,(%u)",ch,(int) ch, prevCh, (int) prevCh);
 
         if(ch == 32 || prevCh != 32 && ch == 10 )
         {
@@ -134,30 +207,30 @@ struct PPM * getPPM(FILE * f)
             numChar[chCounter + 1] = '\0';
             
 
-            // printf("%d", chCounter);
+            // printf("%u", chCounter);
 
             int i = 0, j;
             double len = chCounter - 1;
 
             // printf("%f\n",len);
-            // printf("%d\n",chCounter);
-            // printf("power: %d\n", (int) pow((double) 10, 4));
+            // printf("%u\n",chCounter);
+            // printf("power: %u\n", (int) pow((double) 10, 4));
             while (chCounter > i)
             {
                 j = (int) (numChar[i] - 48);
-                // printf("j: %d\n", j);
+                // printf("j: %u\n", j);
 
                 if (j < 0) j = 0;
 
                 // printf("char: %c\n", numChar[i]);
-                // printf("i: %d, len: %f\n", i, len);
+                // printf("i: %u, len: %f\n", i, len);
 
-                // printf("power: %d\n", (int) pow((double) j, len));
+                // printf("power: %u\n", (int) pow((double) j, len));
 
-                // printf("power: %d\n", (int) ( j * pow(10.0, len)));
+                // printf("power: %u\n", (int) ( j * pow(10.0, len)));
                 
                 number = number + ( (int) ( j * pow(10.0, len)) );
-                // printf("number: %d\n\n", number);
+                // printf("number: %u\n\n", number);
                 i = i + 1;
                 len = len - 1;
                 // chCounter = chCounter - 1;
@@ -200,8 +273,8 @@ struct PPM * getPPM(FILE * f)
                 unsigned int row = pixels % ppm->height;
                 unsigned int collumn = pixels / ppm->height;
 
-                // printf("values: %d, pixels: %d, number: %d, colour: %d", tempValues, pixels, number, colour);
-                // printf(", row: %d, collumn: %d\n\n", row, collumn);
+                // printf("values: %u, pixels: %u, number: %u, colour: %u", tempValues, pixels, number, colour);
+                // printf(", row: %u, collumn: %u\n\n", row, collumn);
                 
                 switch (colour)
                 {
@@ -219,12 +292,12 @@ struct PPM * getPPM(FILE * f)
                 
             }
 
-            // printf("current value: %d", values);
+            // printf("current value: %u", values);
             
                 
-            // printf("\nstring: %s ,final number: %d, code: %d\n", numChar, number, (int) ch);
+            // printf("\nstring: %s ,final number: %u, code: %u\n", numChar, number, (int) ch);
             // printf("\nVALUE!!!");
-            // printf("\ncurrent value %d\n\n", values);
+            // printf("\ncurrent value %u\n\n", values);
             
 
             // printf("\n%s", numChar);
@@ -240,7 +313,7 @@ struct PPM * getPPM(FILE * f)
             continue;
         }
 
-        // printf("\nchar: %c, code: %d", ch, (int) ch);
+        // printf("\nchar: %c, code: %u", ch, (int) ch);
         numChar[chCounter] = ch;
 
         chCounter = chCounter + 1;
@@ -248,11 +321,11 @@ struct PPM * getPPM(FILE * f)
     }
 
     // values = values - 3;S
-    // printf("\n\n%d values!\n", values);
+    // printf("\n\n%u values!\n", values);
     // printf("is it divisible by 3? %s\n", (values % 3 == 0? "Yes": "No"));
-    // printf("height * width = %d\n",(ppm->height * ppm->width));
+    // printf("height * width = %u\n",(ppm->height * ppm->width));
     // printf("(height * width) / total values = %f\n", (float) (ppm->height * ppm->width) / (float) values);
-    // printf("height = %d\n", values / (ppm->width * 3));
+    // printf("height = %u\n", values / (ppm->width * 3));
     // printf("is this the correct dimension? %s", ( (ppm->height * ppm->width * 3) == values? "Yes": "No"));
     // printf("");
     
