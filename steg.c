@@ -247,8 +247,7 @@ struct PPM * getPPM(FILE * f)
 
     }
 
-    values = values - 3;
-
+    // values = values - 3;S
     // printf("\n\n%d values!\n", values);
     // printf("is it divisible by 3? %s\n", (values % 3 == 0? "Yes": "No"));
     // printf("height * width = %d\n",(ppm->height * ppm->width));
