@@ -65,10 +65,15 @@ int readNumber(int prevNumber, int length)
     return prevNumber & auxNumber(length); 
 }
 
-// struct Pixel writeToPixel(int val)
-// {
+struct Pixel writeToPixel(int val)
+{
 
-// }
+}
+
+int readPixelValue(struct Pixel pixel)
+{
+    
+}
 
 int main(int argc, char ** argv)
 {
@@ -105,7 +110,7 @@ int main(int argc, char ** argv)
     }
     
     
-    int n = 42;
+    int n = 170;
 
     printf("original number: ");
     intToBin(n);
@@ -114,15 +119,21 @@ int main(int argc, char ** argv)
     // n = n | 8;
     // n = n >> 3;
 
-    int temp = (n >> 0) | 8;
+    int temp = auxNumber(3) & n;
 
     printf("number 1: ");
     intToBin(temp);
     printf("\n");
 
-    temp = (n >> 3) | 8;
+    temp = auxNumber(3) & (n >> 3);
 
     printf("number 2: ");
+    intToBin(temp);
+    printf("\n");
+
+    temp = auxNumber(3) & (n >> 6);
+
+    printf("number 3: ");
     intToBin(temp);
     printf("\n");
 
