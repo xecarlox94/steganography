@@ -34,9 +34,6 @@ void intToBin(unsigned int number){
     printf("%u",number % 2);
 };
 
-void printPixel(struct Pixel pixel){
-    
-}
 
 int auxNumber(int n)
 {
@@ -113,14 +110,40 @@ void wPixelValue(struct Pixel * pixel, int number)
 
 }
 
-int rPixelValue(struct Pixel pixel, int length)
+int rPixelValue(struct Pixel * pixel, int length)
 {
+    int numberRead = 0;
     for (size_t i = 0; i < length; i++)
     {
-        printf("bit R at pos %d: %d, ", i, rBitPosition(pixel.red,i));
-        printf("bit G at pos %d: %d, ", i, rBitPosition(pixel.green,i));
-        printf("bit B at pos %d: %d \n\n", i, rBitPosition(pixel.blue,i));
+        int shift = i * 3;
+        numberRead = numberRead << shift;
+        printf("number read: ");
+        intToBin(numberRead);
+        printf("\n");
+
+        int rBit = rBitPosition(pixel->red,i);
+        numberRead = numberRead | rBit;
+        printf("number read after red: ");
+        intToBin(numberRead);
+        printf("\n");
+
+        int gBit = rBitPosition(pixel->green,i);
+        numberRead = numberRead | (gBit << 1);
+        printf("number read after green: ");
+        intToBin(numberRead);
+        printf("\n");
+
+        int bBit = rBitPosition(pixel->blue,i);
+        numberRead = numberRead | (bBit << 2);
+        printf("number read after blue: ");
+        intToBin(numberRead);
+        printf("\n");
+
+        printf("\nshift %d\nbit R at pos %d: %d, ", shift, i, rBit);
+        printf("bit G at pos %d: %d, ", i, gBit);
+        printf("bit B at pos %d: %d \n\n", i, bBit);
     }
+    return numberRead;
 }
 
 int main(int argc, char ** argv)
@@ -178,7 +201,7 @@ int main(int argc, char ** argv)
 
 
     
-    int n = 273;
+    int n = 64;
 
     printf("\n\noriginal number to write: ");
     intToBin(n);
@@ -227,7 +250,12 @@ int main(int argc, char ** argv)
     intToBin(pixel.blue);
     printf("\n\n");
 
-    rPixelValue(pixel,3);
+
+    int finalReadNumber = rPixelValue(&pixel,2);
+    printf("\n\nfinal read number: ");
+    intToBin(finalReadNumber);
+    printf("\n\n");
+    
 
     // int pos = 0;
     // printf("bit R at pos %d : %d \n", pos, rBitPosition(pixel.red,pos));
