@@ -48,32 +48,34 @@ int auxNumber(int n)
 }
 
 
-
-int compAuxNumber(int n)
+int wBitPosition(int value, int bit, int pos) 
 {
-    return ~auxNumber(n);
+    if ( bit == 0 )
+    {
+        return value = value & ~(1UL << pos);
+    } 
+    else
+    {
+        return value = value | (1UL << pos);
+    }
 }
 
-int writeNumber(int prevNumber, int length, int number)
+int rBitPosition(int value, int pos) 
 {
-    number = number & auxNumber(length);
-    return (prevNumber & compAuxNumber(length)) | number;
+    return value ^ (1UL << pos);
 }
 
-int readNumber(int prevNumber, int length)
-{
-    return prevNumber & auxNumber(length); 
-}
 
-struct Pixel writeToPixel(int val)
-{
 
-}
+// struct Pixel writeToPixel(int val)
+// {
 
-int readPixelValue(struct Pixel pixel, int length)
-{
+// }
+
+// int readPixelValue(struct Pixel pixel, int length)
+// {
     
-}
+// }
 
 int main(int argc, char ** argv)
 {
@@ -101,45 +103,116 @@ int main(int argc, char ** argv)
 
 
 
+    // for (size_t i = 255; i <= 512; i++)
+    // {
+    //     printf("%d: ", i);
+    //     intToBin(i);
+    //     printf("\n");
+    // }
+
+
     
-    for (size_t i = 0; i < 65; i++)
+
+    struct Pixel pixel;
+
+    pixel.red = 16;
+    pixel.green = 16;
+    pixel.blue= 16;
+
+    printf("original R: ");
+    intToBin(pixel.red);
+    printf("\n");
+    printf("original G: ");
+    intToBin(pixel.green);
+    printf("\n");
+    printf("original B: ");
+    intToBin(pixel.blue);
+    printf("\n");
+
+
+
+
+
+    
+    int n = 273;
+
+    printf("\n\noriginal number to write: ");
+    intToBin(n);
+    printf("\n");
+
+
+
+    int temp = auxNumber(3) & (n >> 6);
+
+    printf("number to write: ");
+    intToBin(temp);
+    printf("\n");
+
+
+
+    int t = (temp >> 0) & 1;
+    printf("bit 0: ");
+    intToBin(t);
+    printf("\n");
+    pixel.red = wBitPosition(pixel.red, t, 1);
+    
+    t = (temp >> 1) & 1;
+    printf("bit 1: ");
+    intToBin(t);
+    printf("\n");
+    pixel.green = wBitPosition(pixel.green, t, 1);
+    
+    t = (temp >> 2) & 1;
+    printf("bit 2: ");
+    intToBin(t);
+    printf("\n");
+    pixel.blue = wBitPosition(pixel.blue, t, 1);
+
+
+
+    printf("modified R: ");
+    intToBin(pixel.red);
+    printf("\n");
+    printf("modified G: ");
+    intToBin(pixel.green);
+    printf("\n");
+    printf("modified B: ");
+    intToBin(pixel.blue);
+    printf("\n");
+
+
+
+    // for (size_t i = 0; i < 3; i++)
+    // {
+    //     printf("bit %d: %d\n", i, ( temp & 1));
+    // }
+    
+
+
+
+
+
+
+    int nmb = 273;
+
+    printf("original number: ");
+    intToBin(nmb);
+    printf("\n");
+
+    int tmp;
+
+    for (size_t i = 0; i < 9; i+=3)
     {
-        printf("%d: ", i);
-        intToBin(i);
+        int tmp = auxNumber(3) & (nmb >> i);
+
+        printf("number %d: ", (i/3));
+        intToBin(tmp);
         printf("\n");
     }
 
 
 
 
-    
-    
-    int n = 170;
-
-    printf("original number: ");
-    intToBin(n);
-    printf("\n");
-
-    // n = n | 8;
-    // n = n >> 3;
-
-    int temp = auxNumber(3) & n;
-
-    printf("number 1: ");
-    intToBin(temp);
-    printf("\n");
-
-    temp = auxNumber(3) & (n >> 3);
-
-    printf("number 2: ");
-    intToBin(temp);
-    printf("\n");
-
-    temp = auxNumber(3) & (n >> 6);
-
-    printf("number 3: ");
-    intToBin(temp);
-    printf("\n");
 
 
 
