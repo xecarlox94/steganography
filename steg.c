@@ -62,19 +62,17 @@ int wBitPosition(int value, int bit, int pos)
 
 int rBitPosition(int value, int pos) 
 {
-    return value ^ (1UL << pos);
+    return (value >> pos) & 1UL;
 }
 
 
 
 // struct Pixel writeToPixel(int val)
 // {
-
 // }
 
 // int readPixelValue(struct Pixel pixel, int length)
 // {
-    
 // }
 
 int main(int argc, char ** argv)
@@ -142,31 +140,31 @@ int main(int argc, char ** argv)
 
 
 
-    int temp = auxNumber(3) & (n >> 6);
+    int temp = auxNumber(3) & (n >> 0);
 
     printf("number to write: ");
     intToBin(temp);
     printf("\n");
 
 
-
+    int pos = 0;
     int t = (temp >> 0) & 1;
     printf("bit 0: ");
     intToBin(t);
     printf("\n");
-    pixel.red = wBitPosition(pixel.red, t, 1);
+    pixel.red = wBitPosition(pixel.red, t, pos);
     
     t = (temp >> 1) & 1;
     printf("bit 1: ");
     intToBin(t);
     printf("\n");
-    pixel.green = wBitPosition(pixel.green, t, 1);
+    pixel.green = wBitPosition(pixel.green, t, pos);
     
     t = (temp >> 2) & 1;
     printf("bit 2: ");
     intToBin(t);
-    printf("\n");
-    pixel.blue = wBitPosition(pixel.blue, t, 1);
+    printf("\n\n");
+    pixel.blue = wBitPosition(pixel.blue, t, pos);
 
 
 
@@ -178,8 +176,12 @@ int main(int argc, char ** argv)
     printf("\n");
     printf("modified B: ");
     intToBin(pixel.blue);
-    printf("\n");
+    printf("\n\n");
 
+    // pos = 0;
+    printf("bit R at pos %d : %d \n", pos, rBitPosition(pixel.red,pos));
+    printf("bit G at pos %d : %d \n", pos, rBitPosition(pixel.green,pos));
+    printf("bit B at pos %d : %d \n", pos, rBitPosition(pixel.blue,pos));
 
 
     // for (size_t i = 0; i < 3; i++)
@@ -193,22 +195,22 @@ int main(int argc, char ** argv)
 
 
 
-    int nmb = 273;
+    // int nmb = 273;
 
-    printf("original number: ");
-    intToBin(nmb);
-    printf("\n");
+    // printf("original number: ");
+    // intToBin(nmb);
+    // printf("\n");
 
-    int tmp;
+    // int tmp;
 
-    for (size_t i = 0; i < 9; i+=3)
-    {
-        int tmp = auxNumber(3) & (nmb >> i);
+    // for (size_t i = 0; i < 9; i+=3)
+    // {
+    //     int tmp = auxNumber(3) & (nmb >> i);
 
-        printf("number %d: ", (i/3));
-        intToBin(tmp);
-        printf("\n");
-    }
+    //     printf("number %d: ", (i/3));
+    //     intToBin(tmp);
+    //     printf("\n");
+    // }
 
 
 
