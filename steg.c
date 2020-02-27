@@ -3,6 +3,12 @@
 #include <math.h>
 #include <string.h>
 
+#ifdef _WIN32
+#include <io.h>
+#else
+#include <unistd.h>
+#endif
+
 
 struct Pixel
 {
@@ -139,15 +145,35 @@ int main(int argc, char ** argv)
 
     if(file == NULL)
     {
-        printf("File not found!");
+        printf("File \"%s\" not found!\n\n", argv[1]);
 
         exit(0);
     }
     
-    
     ppm = getPPM(file);
 
     showPPM(ppm);
+    
+    char command = argv[2][0];
+
+    if ( command == 'e' )
+    {
+        char * message;
+        unsigned int secret;
+        printf("Encoding message into file.\nPlease type your message and secret.");
+        scanf("Message: %s",message);
+        printf("\n");
+        scanf("Secret: %u",secret);
+
+        printf("Message: %s, Secret: %u", message,secret);
+    } 
+    else if ( command == 'd' )
+    {
+        // printf("Decoding message from file.\nPlease type your message and secret\n");
+        unsigned int secret;
+        scanf("Secret: %u",secret);
+        printf("Secret: %u", secret);
+    }
     
 
 
@@ -167,26 +193,10 @@ int main(int argc, char ** argv)
     free(ppm);
 
 
+
+
+
     return 0;
-}
-
-void showPPM(struct PPM * im)
-{
-    printf("printing ppm file\n");
-    printf("\n%s\n", im->format);
-    printf("%u %u\n", im->width, im->height);
-    printf("%u\n",im->colourMax);
-
-    for (size_t i = 0; i < im->width; i++)
-    {
-        for (size_t j = 0; j < im->height; j++)
-        {
-            struct Pixel pxl = im->pixelMatrix[i][j];
-            printf("%u %u %u\n", pxl.red, pxl.green, pxl.blue);
-        }
-    }
-    
-    printf("\n\n");
 }
 
 struct PPM * encode(struct PPM * im, char * message, unsigned int mSize, unsigned int secret)
@@ -304,4 +314,24 @@ struct PPM * getPPM(FILE * f)
     
 
     return ppm;
+}
+
+
+void showPPM(struct PPM * im)
+{
+    printf("printing ppm file\n");
+    printf("\n%s\n", im->format);
+    printf("%u %u\n", im->width, im->height);
+    printf("%u\n",im->colourMax);
+
+    for (size_t i = 0; i < im->width; i++)
+    {
+        for (size_t j = 0; j < im->height; j++)
+        {
+            struct Pixel pxl = im->pixelMatrix[i][j];
+            printf("%u %u %u\n", pxl.red, pxl.green, pxl.blue);
+        }
+    }
+    
+    printf("\n\n");
 }
