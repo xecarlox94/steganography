@@ -26,13 +26,13 @@ struct PPM * getPPM(FILE * f);
 
 void showPPM(struct PPM * im);
 
-void intToBin(unsigned int number){
-    if (number > 1){
-        intToBin(number/2);
-    }
+// void intToBin(unsigned int number){
+//     if (number > 1){
+//         intToBin(number/2);
+//     }
 
-    printf("%u",number % 2);
-};
+//     printf("%u",number % 2);
+// };
 
 
 int auxNumber(int n)
@@ -71,10 +71,12 @@ void wPixelValue(struct Pixel * pixel, int number)
     if ( number <= auxNumber(3) )
     {
         maxIterations = 1;
-    } else if ( number <= auxNumber(6) )
+    } 
+    else if ( number <= auxNumber(6) )
     {
         maxIterations = 2;
-    } else if ( number <= auxNumber(9) )
+    } 
+    else if ( number <= auxNumber(9) )
     {
         maxIterations = 3;
     }
@@ -83,26 +85,14 @@ void wPixelValue(struct Pixel * pixel, int number)
     {
         int shift = i * 3;
         int bit3 = auxNumber(3) & (number >> shift);
-        // printf("shift: %d, pos: %d, number to write: ", shift, i);
-        // intToBin(bit3);
-        // printf("\n");
         
         int bit = bit3 & 1;
-        // printf("bit 0: ");
-        // intToBin(bit);
-        // printf("\n");
         pixel->red = wBitPosition(pixel->red, bit, i);
         
         bit = (bit3 >> 1) & 1;
-        // printf("bit 1: ");
-        // intToBin(bit);
-        // printf("\n");
         pixel->green = wBitPosition(pixel->green, bit, i);
         
         bit = (bit3 >> 2) & 1;
-        // printf("bit 2: ");
-        // intToBin(bit);
-        // printf("\n\n");
         pixel->blue = wBitPosition(pixel->blue, bit, i);
         
         i++;
@@ -116,38 +106,24 @@ int rPixelValue(struct Pixel * pixel, int length)
     for (size_t i = 0; i < length; i++)
     {
         int shift = i * 3;
-        // numberRead = numberRead << shift;
-        // printf("number read: ");
-        // intToBin(numberRead);
-        // printf("\n");
 
         int rBit = rBitPosition(pixel->red,i);
         numberRead = numberRead | (rBit << shift);
-        printf("shift: %d, number read after red: ", shift);
-        intToBin(numberRead);
-        printf("\n");
-
 
         shift++;
         int gBit = rBitPosition(pixel->green,i);
         numberRead = numberRead | (gBit << shift);
-        printf("shift: %d, number read after green: ", shift);
-        intToBin(numberRead);
-        printf("\n");
 
         shift++;
         int bBit = rBitPosition(pixel->blue,i);
         numberRead = numberRead | (bBit << shift);
-        printf("shift: %d, number read after blue: ", shift);
-        intToBin(numberRead);
-        printf("\n");
-
-        printf("\nbit R at pos %d: %d, ", i, rBit);
-        printf("bit G at pos %d: %d, ", i, gBit);
-        printf("bit B at pos %d: %d \n\n", i, bBit);
     }
     return numberRead;
 }
+
+struct PPM * encode(struct PPM * im, char * message, unsigned int mSize, unsigned int secret);
+
+char * decode(struct PPM * im, unsigned int secret);
 
 int main(int argc, char ** argv)
 {
@@ -171,140 +147,8 @@ int main(int argc, char ** argv)
     
     ppm = getPPM(file);
 
-    // showPPM(ppm);
-
-
-
-    // for (size_t i = 128; i < 256; i++)
-    // {
-    //     printf("%d: ", i);
-    //     intToBin(i);
-    //     printf("\n");
-    // }
-
-
+    showPPM(ppm);
     
-
-    struct Pixel pixel;
-
-    pixel.red = 15;
-    pixel.green = 15;
-    pixel.blue = 15;
-
-    printf("original R: ");
-    intToBin(pixel.red);
-    printf("\n");
-    printf("original G: ");
-    intToBin(pixel.green);
-    printf("\n");
-    printf("original B: ");
-    intToBin(pixel.blue);
-    printf("\n\n");
-
-    int n = 273;
-
-    printf("\n\noriginal number to write: ");
-    intToBin(n);
-    printf("\n\n");
-
-
-
-
-    // int c = (auxNumber(9)+1) | 273;
-    // printf("\n\nexample final number: ");
-    // intToBin(c);
-    // printf("\n\n");
-    // printf("complement number: ");
-    // intToBin(c & auxNumber(9));
-    // printf("\n");
-
-
-    wPixelValue(&pixel,n);
-
-
-    // int temp = auxNumber(3) & (n >> 6);
-
-    // intToBin(t);
-    // printf("\n\n");
-    // pixel.blue = wBitPosition(pixel.blue, t, pos);
-
-
-
-    // printf("modified R: ");
-    // int t = (temp >> 0) & 1;
-    // printf("bit 0: ");
-    // intToBin(t);
-    // printf("\n");
-    // pixel.red = wBitPosition(pixel.red, t, pos);
-    
-    // t = (temp >> 1) & 1;
-    // printf("bit 1: ");
-    // intToBin(t);
-    // printf("\n");
-    // pixel.green = wBitPosition(pixel.green, t, pos);
-    
-    // t = (temp >> 2) & 1;
-    // printf("bit 2: ");
-    // intToBin(t);
-    // printf("\n\n");
-    // pixel.blue = wBitPosition(pixel.blue, t, pos);
-
-
-
-    printf("modified R: ");
-    intToBin(pixel.red);
-    printf("\n");
-    printf("modified G: ");
-    intToBin(pixel.green);
-    printf("\n");
-    printf("modified B: ");
-    intToBin(pixel.blue);
-    printf("\n\n");
-
-
-    int finalReadNumber = rPixelValue(&pixel,3);
-    printf("\n\nfinal read number: ");
-    intToBin(finalReadNumber);
-    printf("\n\n");
-    
-
-    // int pos = 0;
-    // printf("bit R at pos %d : %d \n", pos, rBitPosition(pixel.red,pos));
-    // printf("bit G at pos %d : %d \n", pos, rBitPosition(pixel.green,pos));
-    // printf("bit B at pos %d : %d \n", pos, rBitPosition(pixel.blue,pos));
-
-
-    // for (size_t i = 0; i < 3; i++)
-    // {
-    //     printf("bit %d: %d\n", i, ( temp & 1));
-    // }
-    
-
-
-
-
-
-    // int nmb = 273;
-
-    // printf("original number: ");
-    // intToBin(nmb);
-    // printf("\n");
-
-    // int tmp;
-
-    // for (size_t i = 0; i <=6; i+=3)
-    // {
-    //     int tmp = auxNumber(3) & (nmb >> i);
-
-    //     printf("number %d: ", (i/3));
-    //     intToBin(tmp);
-    //     printf("\n");
-    // }
-
-
-
-
-
 
 
 
@@ -312,13 +156,7 @@ int main(int argc, char ** argv)
 
 
     // fclose(file);  RETURNS ERROR !!!!!!!!!!!!!!!
-
-    // printf("\n\nppm\n{\n\twidth: %u;\n\theight: %u;\n\tcolourMax: %u;\n{\n", ppm->width,ppm->height,(int) ppm->colourMax);
-
-
     free(file);
-
-
     // FREEING MEMORY
     // for (size_t i = 0; i < ppm->width; i++)
     // {
@@ -327,6 +165,7 @@ int main(int argc, char ** argv)
     // }
     // free((struct Pixel *) ppm->width);
     free(ppm);
+
 
     return 0;
 }
@@ -346,21 +185,28 @@ void showPPM(struct PPM * im)
             printf("%u %u %u\n", pxl.red, pxl.green, pxl.blue);
         }
     }
-
-    printf("\n\n");
     
+    printf("\n\n");
+}
+
+struct PPM * encode(struct PPM * im, char * message, unsigned int mSize, unsigned int secret)
+{
+    return im;
+}
+
+char * decode(struct PPM * im, unsigned int secret)
+{
+    return "asadasd";
 }
 
 
 struct PPM * getPPM(FILE * f)
 {
     char ch = 65, prevCh, chCounter = 0, numChar[6];
-    // * numChar = (char *) malloc(sizeof(char) * 4);
     int values = 0, valCounter = 0;
-
+    
     struct PPM * ppm = (struct PPM *) malloc(sizeof(struct PPM));
     
-
     while ( ch != EOF)
     {
         int number = 0;
@@ -378,51 +224,29 @@ struct PPM * getPPM(FILE * f)
             ch = 65;
             continue;
         }
-        
-        // printf("\n%c,(%u) -> previous: %c,(%u)",ch,(int) ch, prevCh, (int) prevCh);
 
         if(ch == 32 || prevCh != 32 && ch == 10 )
         {
-
-
-            values = values + 1;
-
-
-            numChar[chCounter + 1] = '\0';
             
-
-            // printf("%u", chCounter);
+            values = values + 1;
+            
+            numChar[chCounter + 1] = '\0';
 
             int i = 0, j;
             double len = chCounter - 1;
-
-            // printf("%f\n",len);
-            // printf("%u\n",chCounter);
-            // printf("power: %u\n", (int) pow((double) 10, 4));
+            
             while (chCounter > i)
             {
                 j = (int) (numChar[i] - 48);
-                // printf("j: %u\n", j);
 
                 if (j < 0) j = 0;
 
-                // printf("char: %c\n", numChar[i]);
-                // printf("i: %u, len: %f\n", i, len);
-
-                // printf("power: %u\n", (int) pow((double) j, len));
-
-                // printf("power: %u\n", (int) ( j * pow(10.0, len)));
-                
                 number = number + ( (int) ( j * pow(10.0, len)) );
-                // printf("number: %u\n\n", number);
+
                 i = i + 1;
                 len = len - 1;
-                // chCounter = chCounter - 1;
             }
-
-
-
-
+            
             if (values <= 3)
             {
                 switch (values)
@@ -434,14 +258,11 @@ struct PPM * getPPM(FILE * f)
 
                     case 2:
                         ppm->height = number;
-
                         ppm->pixelMatrix = (struct Pixel **) malloc(sizeof(struct Pixel *) * ppm->width);
-
                         for(size_t i = 0; i < ppm->width; i++)
                         {
                             ppm->pixelMatrix[i] = (struct Pixel *) malloc(sizeof(struct Pixel) * ppm->height);
                         }
-
                         break;
 
                     case 3:
@@ -456,9 +277,6 @@ struct PPM * getPPM(FILE * f)
                 char colour = tempValues % 3;
                 unsigned int row = pixels % ppm->height;
                 unsigned int collumn = pixels / ppm->height;
-
-                // printf("values: %u, pixels: %u, number: %u, colour: %u", tempValues, pixels, number, colour);
-                // printf(", row: %u, collumn: %u\n\n", row, collumn);
                 
                 switch (colour)
                 {
@@ -473,45 +291,16 @@ struct PPM * getPPM(FILE * f)
                     break;
                 }
                 
-                
             }
-
-            // printf("current value: %u", values);
             
-                
-            // printf("\nstring: %s ,final number: %u, code: %u\n", numChar, number, (int) ch);
-            // printf("\nVALUE!!!");
-            // printf("\ncurrent value %u\n\n", values);
-            
-
-            // printf("\n%s", numChar);
-
-            // 30, 60, 85
-
-            // if (values >= 8) break;
-
-
-
             memset(numChar, 0, sizeof(char) * 6);
             chCounter = 0;
             continue;
         }
 
-        // printf("\nchar: %c, code: %u", ch, (int) ch);
         numChar[chCounter] = ch;
-
         chCounter = chCounter + 1;
-
     }
-
-    // values = values - 3;S
-    // printf("\n\n%u values!\n", values);
-    // printf("is it divisible by 3? %s\n", (values % 3 == 0? "Yes": "No"));
-    // printf("height * width = %u\n",(ppm->height * ppm->width));
-    // printf("(height * width) / total values = %f\n", (float) (ppm->height * ppm->width) / (float) values);
-    // printf("height = %u\n", values / (ppm->width * 3));
-    // printf("is this the correct dimension? %s", ( (ppm->height * ppm->width * 3) == values? "Yes": "No"));
-    // printf("");
     
 
     return ppm;
