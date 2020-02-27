@@ -116,30 +116,33 @@ int rPixelValue(struct Pixel * pixel, int length)
     for (size_t i = 0; i < length; i++)
     {
         int shift = i * 3;
-        numberRead = numberRead << shift;
-        printf("number read: ");
-        intToBin(numberRead);
-        printf("\n");
+        // numberRead = numberRead << shift;
+        // printf("number read: ");
+        // intToBin(numberRead);
+        // printf("\n");
 
         int rBit = rBitPosition(pixel->red,i);
-        numberRead = numberRead | rBit;
-        printf("number read after red: ");
+        numberRead = numberRead | (rBit << shift);
+        printf("shift: %d, number read after red: ", shift);
         intToBin(numberRead);
         printf("\n");
 
+
+        shift++;
         int gBit = rBitPosition(pixel->green,i);
-        numberRead = numberRead | (gBit << 1);
-        printf("number read after green: ");
+        numberRead = numberRead | (gBit << shift);
+        printf("shift: %d, number read after green: ", shift);
         intToBin(numberRead);
         printf("\n");
 
+        shift++;
         int bBit = rBitPosition(pixel->blue,i);
-        numberRead = numberRead | (bBit << 2);
-        printf("number read after blue: ");
+        numberRead = numberRead | (bBit << shift);
+        printf("shift: %d, number read after blue: ", shift);
         intToBin(numberRead);
         printf("\n");
 
-        printf("\nshift %d\nbit R at pos %d: %d, ", shift, i, rBit);
+        printf("\nbit R at pos %d: %d, ", i, rBit);
         printf("bit G at pos %d: %d, ", i, gBit);
         printf("bit B at pos %d: %d \n\n", i, bBit);
     }
@@ -172,7 +175,7 @@ int main(int argc, char ** argv)
 
 
 
-    // for (size_t i = 32; i < 64; i++)
+    // for (size_t i = 128; i < 256; i++)
     // {
     //     printf("%d: ", i);
     //     intToBin(i);
@@ -184,9 +187,9 @@ int main(int argc, char ** argv)
 
     struct Pixel pixel;
 
-    pixel.red = 16;
-    pixel.green = 16;
-    pixel.blue = 16;
+    pixel.red = 15;
+    pixel.green = 15;
+    pixel.blue = 15;
 
     printf("original R: ");
     intToBin(pixel.red);
@@ -198,14 +201,22 @@ int main(int argc, char ** argv)
     intToBin(pixel.blue);
     printf("\n\n");
 
-
-
-    
-    int n = 64;
+    int n = 273;
 
     printf("\n\noriginal number to write: ");
     intToBin(n);
     printf("\n\n");
+
+
+
+
+    // int c = (auxNumber(9)+1) | 273;
+    // printf("\n\nexample final number: ");
+    // intToBin(c);
+    // printf("\n\n");
+    // printf("complement number: ");
+    // intToBin(c & auxNumber(9));
+    // printf("\n");
 
 
     wPixelValue(&pixel,n);
@@ -251,7 +262,7 @@ int main(int argc, char ** argv)
     printf("\n\n");
 
 
-    int finalReadNumber = rPixelValue(&pixel,2);
+    int finalReadNumber = rPixelValue(&pixel,3);
     printf("\n\nfinal read number: ");
     intToBin(finalReadNumber);
     printf("\n\n");
