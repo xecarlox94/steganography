@@ -3,11 +3,11 @@
 #include <math.h>
 #include <string.h>
 
-#ifdef _WIN32
-#include <io.h>
-#else
-#include <unistd.h>
-#endif
+// #ifdef _WIN32
+// #include <io.h>
+// #else
+// #include <unistd.h>
+// #endif
 
 
 struct Pixel
@@ -32,13 +32,13 @@ struct PPM * getPPM(FILE * f);
 
 void showPPM(struct PPM * im);
 
-// void intToBin(unsigned int number){
-//     if (number > 1){
-//         intToBin(number/2);
-//     }
+void intToBin(unsigned int number){
+    if (number > 1){
+        intToBin(number/2);
+    }
 
-//     printf("%u",number % 2);
-// };
+    printf("%u",number % 2);
+};
 
 
 int auxNumber(int n)
@@ -68,6 +68,17 @@ int rBitPosition(int value, int pos)
     return (value >> pos) & 1UL;
 }
 
+int strLength(char * string)
+{
+    char c = string[0], counter = 0;
+    while ( c != '\0')
+    {
+        counter++;
+        c = string[counter];
+    }
+
+    return (int) counter;
+}
 
 
 void wPixelValue(struct Pixel * pixel, int number)
@@ -152,27 +163,30 @@ int main(int argc, char ** argv)
     
     ppm = getPPM(file);
 
-    showPPM(ppm);
+    // showPPM(ppm);
     
     char command = argv[2][0];
 
     if ( command == 'e' )
     {
-        char * message;
-        unsigned int secret;
-        printf("Encoding message into file.\nPlease type your message and secret.");
-        scanf("Message: %s",message);
-        printf("\n");
-        scanf("Secret: %u",secret);
+        int secret;
+        char message[32];
+        printf("Enter the secret: ");
+        scanf("%d", &secret);
+        printf("Enter the message: ");
+        scanf("%s", message);
+        
+        encode(ppm,message,strLength(message),secret);
 
-        printf("Message: %s, Secret: %u", message,secret);
+        decode(ppm,secret);
     } 
     else if ( command == 'd' )
     {
         // printf("Decoding message from file.\nPlease type your message and secret\n");
-        unsigned int secret;
-        scanf("Secret: %u",secret);
-        printf("Secret: %u", secret);
+        int secret;
+        printf("Secret: ");
+        scanf("%d",&secret);
+        printf("Secret: %d\n", secret);
     }
     
 
@@ -201,11 +215,101 @@ int main(int argc, char ** argv)
 
 struct PPM * encode(struct PPM * im, char * message, unsigned int mSize, unsigned int secret)
 {
+    srand(secret);
+    unsigned int max = im->height*im->width;
+    // printf("max value ppm: %u\n",max);
+
+    unsigned char counter = 0, c;
+    // printf("size of c: %d\n",sizeof(c));
+    
+    unsigned int pos, row, collumn;
+
+    while (1)
+    {
+        // c = message[counter];
+
+        c = 170;
+
+    printf("FIRST character: ");
+    intToBin(c);
+    printf("\n");
+
+        for (size_t i = 0; i < 3; i++)
+        {
+            pos = rand() % max;
+            row = pos % im->height;
+            collumn = pos / im->height;
+
+            int shift = 3 * i;
+            int three_bits = (c >> shift ) & auxNumber(3);
+
+            struct Pixel * pxl = &(im->pixelMatrix[collumn][row]);
+
+            wPixelValue(pxl, three_bits);
+
+
+        }
+
+        // bits = bits & auxNumber(8);
+
+
+        if(c == 0) break;
+        // printf("char: %c, ascii: %d\n", c, (int) c);
+
+        break;
+        
+        counter++;
+    }
+
     return im;
 }
 
 char * decode(struct PPM * im, unsigned int secret)
 {
+    srand(secret);
+    unsigned int max = im->height*im->width;
+    
+    unsigned int pos, row, collumn;
+
+    printf("\n\nDECODING!!!!!!!!!!!!!!!!!!\n\n");
+    
+    unsigned char a = 0;
+
+    printf("INITIAL character: ");
+    intToBin(a);
+    printf("\n");
+
+    while (1)
+    {
+
+        for (size_t i = 0; i < 3; i++)
+        {
+            pos = rand() % max;
+            row = pos % im->height;
+            collumn = pos / im->height;
+
+            struct Pixel * pxl = &(im->pixelMatrix[collumn][row]);
+
+            int three_bits = rPixelValue(pxl,1);
+
+            printf("bit %d: ", i);
+            intToBin(three_bits);
+            printf("\n\n");
+
+            int shift = 3 * i;
+            a = a | (three_bits << shift);
+
+            printf("CURRENT CHAR: ");
+            intToBin(a);
+            printf("\n\n");
+        }
+
+
+        printf("FINAL CHARACTER: %d\n\n",(int) a);
+
+        break;
+    }
+
     return "asadasd";
 }
 
