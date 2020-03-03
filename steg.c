@@ -104,6 +104,8 @@ struct PPM * getPPM(FILE * f);
 
 void showPPM(struct PPM * im);
 
+void outputPPMFile(struct PPM * ppm, char * outFileName);
+
 void intToBin(unsigned int number){
     if (number > 1){
         intToBin(number/2);
@@ -252,11 +254,9 @@ int main(int argc, char ** argv)
         printf("\n\nEnter the secret: ");
         scanf("%d", &secret);
         
-        encode(ppm,message,strLength(message),secret);
+        struct PPM * encodedPPM = encode(ppm,message,strLength(message),secret);
 
-        char * msg = decode(ppm,secret);
-
-        printf("ULTIMATE MSG: %s\n\n", msg);
+        outputPPMFile(encodedPPM, argv[3]);
 
     } 
     else if ( command == 'd' )
@@ -266,6 +266,10 @@ int main(int argc, char ** argv)
         printf("Secret: ");
         scanf("%d",&secret);
         printf("Secret: %d\n", secret);
+
+        char * msg = decode(ppm,secret);
+
+        printf("ULTIMATE MSG: %s\n\n", msg);
     }
     
 
@@ -275,7 +279,7 @@ int main(int argc, char ** argv)
 
 
     // fclose(file);  RETURNS ERROR !!!!!!!!!!!!!!!
-    free(file);
+    // free(file);
     // FREEING MEMORY
     // for (size_t i = 0; i < ppm->width; i++)
     // {
@@ -525,6 +529,26 @@ struct PPM * getPPM(FILE * f)
     
 
     return ppm;
+}
+
+void outputPPMFile(struct PPM * ppm, char * outFileName)
+{
+    FILE * fout = fopen(outFileName, "w");
+    
+    fprintf(fout, "%s\n", ppm->format);
+    fprintf(fout, "%d %d\n", ppm->width,ppm->height);
+    fprintf(fout, "%u \n", ppm->colourMax);
+
+    for (size_t i = 0; i < ppm->width; i++)
+    {
+        for (size_t j = 0; j < ppm->height; j++)
+        {
+            struct Pixel pxl = ppm->pixelMatrix[i][j];
+            fprintf(fout, "%u %u %u\n", pxl.red, pxl.green, pxl.blue);
+        }
+    }
+
+    fclose(fout);
 }
 
 
