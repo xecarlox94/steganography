@@ -132,6 +132,8 @@ int rPixelValue(struct Pixel * pixel, int length)
     return numberRead;
 }
 
+
+
 struct PPM * encode(struct PPM * im, char * message, unsigned int mSize, unsigned int secret);
 
 char * decode(struct PPM * im, unsigned int secret);
@@ -165,10 +167,12 @@ int main(int argc, char ** argv)
     {
         int secret;
         char message[32];
-        printf("Enter the secret: ");
+
+        printf("Message: ");
+        fgets(message,32,stdin);
+
+        printf("\n\nEnter the secret: ");
         scanf("%d", &secret);
-        printf("Enter the message: ");
-        scanf("%s", message);
         
         encode(ppm,message,strLength(message),secret);
 
@@ -223,6 +227,11 @@ struct PPM * encode(struct PPM * im, char * message, unsigned int mSize, unsigne
     while (counter <= mSize)
     {
         c = message[counter];
+        
+        if( c == 10) {
+            counter++;
+            continue;
+        }
 
         for (size_t i = 0; i < 3; i++)
         {
@@ -236,9 +245,9 @@ struct PPM * encode(struct PPM * im, char * message, unsigned int mSize, unsigne
             int three_bits = (c >> shift ) & auxNumber(3);
 
 
-            printf("bit %d: ", i);
-            intToBin(three_bits);
-            printf("\n");
+            // printf("bit %d: ", i);
+            // intToBin(three_bits);
+            // printf("\n");
 
             struct Pixel * pxl = &(im->pixelMatrix[collumn][row]);
 
@@ -267,7 +276,6 @@ char * decode(struct PPM * im, unsigned int secret)
     printf("\n\nDECODING!!!!!!!!!!!!!!!!!!\n\n");
     
     unsigned char c,counter=0;
-
 
     while (1)
     {
