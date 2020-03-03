@@ -213,20 +213,16 @@ struct PPM * encode(struct PPM * im, char * message, unsigned int mSize, unsigne
     unsigned int max = im->height*im->width;
     // printf("max value ppm: %u\n",max);
 
+    printf("MESSAGE: %s\n\n", message);
+
     unsigned char counter = 0, c;
     // printf("size of c: %d\n",sizeof(c));
     
     unsigned int pos, row, collumn;
 
-    while (1)
+    while (counter <= mSize)
     {
-        // c = message[counter];
-
-        c = 170;
-
-    printf("FIRST character: ");
-    intToBin(c);
-    printf("\n");
+        c = message[counter];
 
         for (size_t i = 0; i < 3; i++)
         {
@@ -234,8 +230,15 @@ struct PPM * encode(struct PPM * im, char * message, unsigned int mSize, unsigne
             row = pos % im->height;
             collumn = pos / im->height;
 
+            // printf("pos: %d, row: %d, collumn: %d\n", pos, row, collumn);
+
             int shift = 3 * i;
             int three_bits = (c >> shift ) & auxNumber(3);
+
+
+            printf("bit %d: ", i);
+            intToBin(three_bits);
+            printf("\n");
 
             struct Pixel * pxl = &(im->pixelMatrix[collumn][row]);
 
@@ -244,14 +247,10 @@ struct PPM * encode(struct PPM * im, char * message, unsigned int mSize, unsigne
 
         }
 
-        // bits = bits & auxNumber(8);
+        printf("char: %c, ascii: %d, binary: ", c, (int) c);
+        intToBin(c);
+        printf("\n");
 
-
-        if(c == 0) break;
-        // printf("char: %c, ascii: %d\n", c, (int) c);
-
-        break;
-        
         counter++;
     }
 
@@ -267,42 +266,51 @@ char * decode(struct PPM * im, unsigned int secret)
 
     printf("\n\nDECODING!!!!!!!!!!!!!!!!!!\n\n");
     
-    unsigned char a = 0;
+    unsigned char c,counter=0;
 
-    printf("INITIAL character: ");
-    intToBin(a);
-    printf("\n");
 
     while (1)
     {
+        c = 0;
 
         for (size_t i = 0; i < 3; i++)
         {
+
             pos = rand() % max;
             row = pos % im->height;
             collumn = pos / im->height;
+
+            // printf("pos: %d, row: %d, collumn: %d\n", pos, row, collumn);
 
             struct Pixel * pxl = &(im->pixelMatrix[collumn][row]);
 
             int three_bits = rPixelValue(pxl,1);
 
-            printf("bit %d: ", i);
-            intToBin(three_bits);
-            printf("\n\n");
+            // printf("bit %d: ", i);
+            // intToBin(three_bits);
+            // printf("\n");
 
             int shift = 3 * i;
-            a = a | (three_bits << shift);
+            c = c | (three_bits << shift);
 
-            printf("CURRENT CHAR: ");
-            intToBin(a);
-            printf("\n\n");
+
+            // printf("CURRENT CHAR: ");
+            // intToBin(c);
+            // printf("\n\n");
         }
 
+        
+        if( c == 0) break;
 
-        printf("FINAL CHARACTER: %d\n\n",(int) a);
+        counter++;
 
-        break;
+        printf("char: %c, ascii: %d, binary: ", c, (int) c);
+        intToBin(c);
+        printf("\n");
+
     }
+
+    printf("this message is %d characters long!\n", counter);
 
     return "asadasd";
 }
