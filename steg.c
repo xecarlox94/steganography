@@ -21,6 +21,84 @@ struct PPM
     struct Pixel ** pixelMatrix;
 };
 
+struct CharNode
+{
+    char ch;
+    struct CharNode * nextNode;
+} * charList;
+
+
+void insertCharList(char c)
+{
+    struct CharNode * temp;
+    if (charList == NULL)
+    {
+        charList = (struct CharNode *) malloc(sizeof(struct CharNode));
+
+        charList->ch = c;
+        charList->nextNode = NULL;
+
+        return;
+    }
+    temp = charList;
+    while (1)
+    {
+        if (temp->nextNode != NULL)
+        {
+            temp = temp->nextNode;
+        }
+        else
+        {
+            temp->nextNode = (struct CharNode *) malloc(sizeof(struct CharNode));
+            temp = temp->nextNode;
+            temp->ch = c;
+            temp->nextNode = NULL;
+            return;
+        }
+    }
+}
+
+void trasverseCharList()
+{
+    struct CharNode * temp;
+    temp = charList;
+    while (temp != NULL)
+    {
+        // printf("character: %c \n",temp->ch);
+
+        temp = temp->nextNode;
+    }
+    
+}
+
+char * getMessage(int size)
+{
+    char * msg = (char *) malloc(sizeof(char) * size);
+
+    char counter = 0;
+    struct CharNode * temp = charList;
+
+    while (temp != NULL)
+    {
+        char ch = temp->ch;
+        msg[counter] = ch;
+        temp = temp->nextNode;
+        counter++;
+    }
+    
+    return msg;
+}
+
+
+void freeMem(struct CharNode * chNode)
+{
+    if (chNode->nextNode)
+    {
+        freeMem(chNode->nextNode);
+    }
+    free(chNode);
+}
+
 
 struct PPM * getPPM(FILE * f);
 
@@ -176,7 +254,10 @@ int main(int argc, char ** argv)
         
         encode(ppm,message,strLength(message),secret);
 
-        decode(ppm,secret);
+        char * msg = decode(ppm,secret);
+
+        printf("ULTIMATE MSG: %s\n\n", msg);
+
     } 
     else if ( command == 'd' )
     {
@@ -217,7 +298,7 @@ struct PPM * encode(struct PPM * im, char * message, unsigned int mSize, unsigne
     unsigned int max = im->height*im->width;
     // printf("max value ppm: %u\n",max);
 
-    printf("MESSAGE: %s\n\n", message);
+    // printf("MESSAGE: %s\n\n", message);
 
     unsigned char counter = 0, c;
     // printf("size of c: %d\n",sizeof(c));
@@ -256,9 +337,9 @@ struct PPM * encode(struct PPM * im, char * message, unsigned int mSize, unsigne
 
         }
 
-        printf("char: %c, ascii: %d, binary: ", c, (int) c);
-        intToBin(c);
-        printf("\n");
+        // printf("char: %c, ascii: %d, binary: ", c, (int) c);
+        // intToBin(c);
+        // printf("\n");
 
         counter++;
     }
@@ -273,7 +354,9 @@ char * decode(struct PPM * im, unsigned int secret)
     
     unsigned int pos, row, collumn;
 
-    printf("\n\nDECODING!!!!!!!!!!!!!!!!!!\n\n");
+    struct charNode * charnode;
+
+    // printf("\n\nDECODING!!!!!!!!!!!!!!!!!!\n\n");
     
     unsigned char c,counter=0;
 
@@ -310,17 +393,31 @@ char * decode(struct PPM * im, unsigned int secret)
         
         if( c == 0) break;
 
+
+
         counter++;
 
-        printf("char: %c, ascii: %d, binary: ", c, (int) c);
-        intToBin(c);
-        printf("\n");
+        // charNode
+
+        // printf("char: %c, ascii: %d, binary: ", c, (int) c);
+        // intToBin(c);
+        // printf("\n");
+
+        insertCharList(c);
 
     }
 
+    trasverseCharList();
+
+    
+
+    char * message = getMessage(counter);
+
     printf("this message is %d characters long!\n", counter);
 
-    return "asadasd";
+    freeMem(charList);
+
+    return message;
 }
 
 
