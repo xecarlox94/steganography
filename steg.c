@@ -23,60 +23,66 @@ struct PPM
 
 struct CharNode
 {
-    char ch;
+    char ch, length;
     struct CharNode * nextNode;
-} * charList;
+};
 
 
-void insertCharList(char c)
+void insertCharList(struct CharNode * chNode, char c)
 {
-    struct CharNode * temp;
-    if (charList == NULL)
+    if ( chNode->length == 0 )
     {
-        charList = (struct CharNode *) malloc(sizeof(struct CharNode));
 
-        charList->ch = c;
-        charList->nextNode = NULL;
+        chNode->ch = c;
+        chNode->length= 1;
+        chNode->nextNode = NULL;
 
         return;
     }
-    temp = charList;
+
+    struct CharNode * temp = chNode;
+
     while (1)
     {
         if (temp->nextNode != NULL)
         {
+            temp->length++;
             temp = temp->nextNode;
         }
         else
         {
+            temp->length++;
             temp->nextNode = (struct CharNode *) malloc(sizeof(struct CharNode));
             temp = temp->nextNode;
+
             temp->ch = c;
+            temp->length = 1;
             temp->nextNode = NULL;
             return;
         }
     }
 }
 
-void trasverseCharList()
+void trasverseCharList(struct CharNode * chNode)
 {
     struct CharNode * temp;
-    temp = charList;
+    temp = chNode;
+
     while (temp != NULL)
     {
-        // printf("character: %c \n",temp->ch);
+        printf("character: %c, length: %d \n",temp->ch,temp->length);
 
         temp = temp->nextNode;
     }
     
 }
 
-char * getMessage(int size)
+char * getMessage(struct CharNode * chNode)
 {
-    char * msg = (char *) malloc(sizeof(char) * size);
+    char * msg = (char *) malloc(sizeof(char) * chNode->length);
 
     char counter = 0;
-    struct CharNode * temp = charList;
+    struct CharNode * temp = chNode;
 
     while (temp != NULL)
     {
@@ -272,7 +278,6 @@ int main(int argc, char ** argv)
         int secret;
         printf("Secret: ");
         scanf("%d",&secret);
-        printf("Secret: %d\n", secret);
 
         char * msg = decode(ppm,secret);
 
@@ -285,10 +290,9 @@ int main(int argc, char ** argv)
 
 
 
-    fclose(file);  //RETURNS ERROR !!!!!!!!!!!!!!!
-    free(file);
-    // FREEING MEMORY
-    
+    fclose(file);
+
+    free(file);    
 
     freePPM(ppm);
 
@@ -355,13 +359,13 @@ struct PPM * encode(struct PPM * im, char * message, unsigned int mSize, unsigne
 char * decode(struct PPM * im, unsigned int secret)
 {
     srand(secret);
+
     unsigned int max = im->height*im->width;
     
     unsigned int pos, row, collumn;
 
-    struct charNode * charnode;
-
-    // printf("\n\nDECODING!!!!!!!!!!!!!!!!!!\n\n");
+    struct CharNode * charList = (struct CharNode *) malloc(sizeof(struct CharNode));
+    charList->length = 0;
     
     unsigned char c,counter=0;
 
@@ -404,21 +408,22 @@ char * decode(struct PPM * im, unsigned int secret)
 
         // charNode
 
-        // printf("char: %c, ascii: %d, binary: ", c, (int) c);
-        // intToBin(c);
-        // printf("\n");
+        printf("char: %c, ascii: %d, binary: ", c, (int) c);
+        intToBin(c);
+        printf("\n");
 
-        insertCharList(c);
+
+        insertCharList(charList, c);
 
     }
 
-    trasverseCharList();
+    trasverseCharList(charList);
 
     
 
-    char * message = getMessage(counter);
+    char * message = getMessage(charList);
 
-    printf("this message is %d characters long!\n", counter);
+    printf("this message is %d characters long!\n", charList->length);
 
     freeMem(charList);
 
