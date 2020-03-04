@@ -157,20 +157,15 @@ int strLength(char * string)
 
 void wPixelValue(struct Pixel * pixel, int number)
 {
-    int maxIterations = 0, i = 0;
+    int maxIterations = 1, i = 3;
 
-    if ( number <= auxNumber(3) )
+    while ( number > auxNumber(i)  )
     {
-        maxIterations = 1;
-    } 
-    else if ( number <= auxNumber(6) )
-    {
-        maxIterations = 2;
-    } 
-    else if ( number <= auxNumber(9) )
-    {
-        maxIterations = 3;
+        maxIterations++;
+        i += 3;
     }
+
+    i = 0;
 
     while (i < maxIterations)
     {
@@ -218,6 +213,18 @@ struct PPM * encode(struct PPM * im, char * message, unsigned int mSize, unsigne
 
 char * decode(struct PPM * im, unsigned int secret);
 
+
+void freePPM(struct PPM * ppm) 
+{
+    for (size_t i = 0; i < ppm->width; i++)
+    {
+        struct Pixel * pixel = (struct Pixel *) ppm->pixelMatrix[i];
+        free(pixel);
+    }
+    free((struct Pixel *) ppm->pixelMatrix);
+    free(ppm);
+}
+
 int main(int argc, char ** argv)
 {
     FILE * file;
@@ -254,7 +261,7 @@ int main(int argc, char ** argv)
         printf("\n\nEnter the secret: ");
         scanf("%d", &secret);
         
-        struct PPM * encodedPPM = encode(ppm,message,strLength(message),secret);
+        struct PPM * encodedPPM = encode(ppm, message, strLength(message), secret);
 
         outputPPMFile(encodedPPM, argv[3]);
 
@@ -278,18 +285,12 @@ int main(int argc, char ** argv)
 
 
 
-    // fclose(file);  RETURNS ERROR !!!!!!!!!!!!!!!
-    // free(file);
+    fclose(file);  //RETURNS ERROR !!!!!!!!!!!!!!!
+    free(file);
     // FREEING MEMORY
-    // for (size_t i = 0; i < ppm->width; i++)
-    // {
-    //     struct Pixel * pixel = (struct Pixel *) ppm->width + i;
-    //     free(pixel);
-    // }
-    // free((struct Pixel *) ppm->width);
-    free(ppm);
+    
 
-
+    freePPM(ppm);
 
 
 
