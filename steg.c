@@ -8,6 +8,25 @@
 
 /*
 
+USAGE
+
+Encoding:
+
+./steg [path/fileToEncode] s [path/finalFileEncoded]
+
+Decoding:
+
+./steg [path/file] d
+
+Showing ppm:
+
+./steg [path/file] s
+
+*/
+
+
+/*
+
 LINKING
 
 gcc -c -o steg.o steg.c
