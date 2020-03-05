@@ -24,70 +24,41 @@ struct PPM
 };
 
 
-void intToBin(unsigned int number){
-    if (number > 1){
-        intToBin(number/2);
-    }
-
-    printf("%u",number % 2);
-};
+void intToBin(unsigned int number);
 
 
-int auxNumber(int n)
-{
-    if( n == 0) return 0;
-
-    if( n == 1) return 1;
-    
-    return (auxNumber(n - 1) << 1) | 1;
-}
+int auxNumber(int n);
 
 
-int wBitPosition(int value, int bit, int pos) 
-{
-    if ( bit == 0 )
-    {
-        return value = value & ~(1UL << pos);
-    } 
-    else
-    {
-        return value = value | (1UL << pos);
-    }
-}
+int wBitPosition(int value, int bit, int pos);
 
-int rBitPosition(int value, int pos) 
-{
-    return (value >> pos) & 1UL;
-}
 
-int strLength(char * string)
-{
-    char c = string[0], counter = 0;
-    while ( c != '\0')
-    {
-        counter++;
-        c = string[counter];
-    }
+int rBitPosition(int value, int pos);
 
-    return (int) counter;
-}
+
+int strLength(char * string);
 
 
 struct PPM * getPPM(FILE * f);
 
+
 void showPPM(struct PPM * im);
+
 
 void outputPPMFile(struct PPM * ppm, char * outFileName);
 
+
 struct PPM * encode(struct PPM * im, char * message, unsigned int mSize, unsigned int secret);
 
+
 char * decode(struct PPM * im, unsigned int secret);
+
 
 void freePPM(struct PPM * ppm);
 
 
-
 void wPixelValue(struct Pixel * pixel, int number);
+
 
 int rPixelValue(struct Pixel * pixel, int length);
 
@@ -463,4 +434,55 @@ int rPixelValue(struct Pixel * pixel, int length)
         numberRead = numberRead | (bBit << shift);
     }
     return numberRead;
+}
+
+
+
+
+void intToBin(unsigned int number){
+    if (number > 1){
+        intToBin(number/2);
+    }
+
+    printf("%u",number % 2);
+};
+
+
+int auxNumber(int n)
+{
+    if( n == 0) return 0;
+
+    if( n == 1) return 1;
+    
+    return (auxNumber(n - 1) << 1) | 1;
+}
+
+
+int wBitPosition(int value, int bit, int pos) 
+{
+    if ( bit == 0 )
+    {
+        return value = value & ~(1UL << pos);
+    } 
+    else
+    {
+        return value = value | (1UL << pos);
+    }
+}
+
+int rBitPosition(int value, int pos) 
+{
+    return (value >> pos) & 1UL;
+}
+
+int strLength(char * string)
+{
+    char c = string[0], counter = 0;
+    while ( c != '\0')
+    {
+        counter++;
+        c = string[counter];
+    }
+
+    return (int) counter;
 }
