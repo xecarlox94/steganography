@@ -182,14 +182,14 @@ struct PPM * encode(struct PPM * im, char * message, unsigned int mSize, unsigne
     // gets the max capacity of the ppm data structure
     unsigned int max = im->height*im->width;
 
-    // initialises the message character index and a character variable
-    unsigned char index = 0, c;
+    // initialises the message character index
+    unsigned char index = 0;
 
     // runs while index is greater than message size
     while (index <= mSize)
     {
-        // stores current message
-        c = message[index];
+        // stores current message character index in a character variable
+        unsigned char c = message[index];
         
         // if character is new line 
         // skip looop and increment index
@@ -204,7 +204,7 @@ struct PPM * encode(struct PPM * im, char * message, unsigned int mSize, unsigne
             // initializing position, row and collumn variables
             unsigned int pos, row, collumn;
 
-            // pos is withing the ppm capacity bound
+            // pos is withing the ppm capacity bounds
             pos = rand() % max;
 
             // row is equal to the position modulus of height
@@ -236,46 +236,58 @@ struct PPM * encode(struct PPM * im, char * message, unsigned int mSize, unsigne
 
 char * decode(struct PPM * im, unsigned int secret)
 {
+    // seeds a secret to the pseudo random generator
     srand(secret);
 
+    // gets the max capacity of the ppm data structure
     unsigned int max = im->height*im->width;
     
-    unsigned int pos, row, collumn;
-
+    // initialising charater singly linked list to store an unknown amount of characters
+    // setting its original length to 0;
     struct CharNode * charList = (struct CharNode *) malloc(sizeof(struct CharNode));
     charList->length = 0;
-    
-    unsigned char c;
 
     while (1)
     {
-        c = 0;
+        // stores current character being read
+        unsigned char c = 0;
 
+        // reads 3 pixels to get the binary number for the character
         for (size_t i = 0; i < 3; i++)
         {
+            // initializing position, row and collumn variables
+            unsigned int pos, row, collumn;
 
+            // pos is withing the ppm capacity bounds
             pos = rand() % max;
+
+            // row is equal to the position modulus of height
             row = pos % im->height;
+
+            // collumn is equal to the position division of height
             collumn = pos / im->height;
 
+            // getting pixel pointer from correct position
             struct Pixel * pxl = &(im->pixelMatrix[collumn][row]);
 
+            // reading 3 bits from the first pixel collumn of colours
             int three_bits = rPixelValue(pxl,1);
 
+            // getting the correct shift for the character number
             int shift = 3 * i;
+
+            // writing the 3 bits on the correct position
             c = c | (three_bits << shift);
         }
 
-        
+        // finish when it reaches the end of string character
         if( c == 0) break;
-
-
+        
+        // inserts current character in the singly list character
         insertCharList(charList, c);
-
     }
-
     
-
+    // returns a string from the character list
     char * message = getMessage(charList);
 
     return message;
@@ -284,8 +296,15 @@ char * decode(struct PPM * im, unsigned int secret)
 
 struct PPM * getPPM(FILE * f)
 {
-    char ch = 65, prevCh, chCounter = 0, numChar[6];
-    int values = 0, valCounter = 0;
+    // stores the character variables
+    // ch for current character, setting a value different from a number character
+    // prevCh to store previous character in the loop
+    // index to store the character position
+    // numChar stores the character of a number
+    char ch = 65, prevCh, index = 0, numChar[6];
+
+    // s
+    int numValues = 0, valCounter = 0;
     
     struct PPM * ppm = (struct PPM *) malloc(sizeof(struct PPM));
     
@@ -310,14 +329,14 @@ struct PPM * getPPM(FILE * f)
         if(ch == 32 || prevCh != 32 && ch == 10 )
         {
             
-            values = values + 1;
+            numValues = numValues + 1;
             
-            numChar[chCounter + 1] = '\0';
+            numChar[index + 1] = '\0';
 
             int i = 0, j;
-            double len = chCounter - 1;
+            double len = index - 1;
             
-            while (chCounter > i)
+            while (index > i)
             {
                 j = (int) (numChar[i] - 48);
 
@@ -329,9 +348,9 @@ struct PPM * getPPM(FILE * f)
                 len = len - 1;
             }
             
-            if (values <= 3)
+            if (numValues <= 3)
             {
-                switch (values)
+                switch (numValues)
                 {
                     case 1:
                         ppm->width = number;
@@ -354,7 +373,7 @@ struct PPM * getPPM(FILE * f)
             } 
             else
             {
-                unsigned int tempValues = values - 4;
+                unsigned int tempValues = numValues - 4;
                 unsigned int pixels = tempValues / 3;
                 char colour = tempValues % 3;
                 unsigned int row = pixels % ppm->height;
@@ -376,12 +395,12 @@ struct PPM * getPPM(FILE * f)
             }
             
             memset(numChar, 0, sizeof(char) * 6);
-            chCounter = 0;
+            index = 0;
             continue;
         }
 
-        numChar[chCounter] = ch;
-        chCounter = chCounter + 1;
+        numChar[index] = ch;
+        index = index + 1;
     }
     
 
