@@ -303,19 +303,26 @@ struct PPM * getPPM(FILE * f)
     // numChar stores the character of a number
     char ch = 65, prevCh, index = 0, numChar[6];
 
-    // s
-    int numValues = 0, valCounter = 0;
+    // storing the number of values
+    int numValues = 0;
     
+    // creates the ppm to store the file PPM data structure
     struct PPM * ppm = (struct PPM *) malloc(sizeof(struct PPM));
     
+    // while is no the end of the file
     while ( ch != EOF)
     {
+        // initialises the current number
         int number = 0;
         
+        // stores the previous character
         prevCh = ch;
         
+        // gets the current character
         ch = getc(f);
 
+
+        // if the line is the format or comment, ignore line
         if(ch == '#' || ch == 'P')
         {
             while (ch != '\n')
@@ -326,40 +333,67 @@ struct PPM * getPPM(FILE * f)
             continue;
         }
 
+
+        // if the current charater is the space on 
+        // or the current character is new line and the previous was different from space character
+        // calculate the number stored as a string
         if(ch == 32 || prevCh != 32 && ch == 10 )
         {
-            
+            // increment number of values 
             numValues = numValues + 1;
             
+            // add the end of string character
             numChar[index + 1] = '\0';
 
+            // initialise number character index and the current number in the j integer file
             int i = 0, j;
+
+            // gets the length of the number character
             double len = index - 1;
             
+            // loops while index is less than the index
             while (index > i)
             {
+                // gets the number correspondent to the number character
                 j = (int) (numChar[i] - 48);
 
+                // if number is negative, set it to zero
                 if (j < 0) j = 0;
 
+                // construct number from the characters
                 number = number + ( (int) ( j * pow(10.0, len)) );
 
+                // increment index
+                // decrement length
                 i = i + 1;
                 len = len - 1;
             }
             
+            // if the number of values is less than 3
+            // store the header ppm values
             if (numValues <= 3)
             {
                 switch (numValues)
                 {
+                    // if it is the first number
                     case 1:
+                        // store width and format
                         ppm->width = number;
                         ppm->format = "P3";
                         break;
 
+                    // if it is the second value
                     case 2:
+                        // store height
                         ppm->height = number;
+
+                        // now it is possible to generate a 2d pixel matrix dinamically 
+                        // because width and height and width are known
+
+                        // dinamically generate a pixel matrix pointer, with width length
                         ppm->pixelMatrix = (struct Pixel **) malloc(sizeof(struct Pixel *) * ppm->width);
+
+                        // generate an pointer of pointer per each pointer of the main pixel pointer created previously
                         for(size_t i = 0; i < ppm->width; i++)
                         {
                             ppm->pixelMatrix[i] = (struct Pixel *) malloc(sizeof(struct Pixel) * ppm->height);
@@ -367,39 +401,58 @@ struct PPM * getPPM(FILE * f)
                         break;
 
                     case 3:
+                        // storing the max colour value
                         ppm->colourMax = (unsigned char) number;
                         break;
                 }
             } 
             else
             {
-                unsigned int tempValues = numValues - 4;
-                unsigned int pixels = tempValues / 3;
-                char colour = tempValues % 3;
+                // getting the current number of colours
+                unsigned int numberColours = numValues - 4;
+
+                // getting the current number of pixels
+                unsigned int pixels = numberColours / 3;
+
+                // determining if colour is the current value
+                char colour = numberColours % 3;
+
+                // determining the correct row for this pixel
                 unsigned int row = pixels % ppm->height;
+
+                // determining the correct collumn for this pixel
                 unsigned int collumn = pixels / ppm->height;
                 
                 switch (colour)
                 {
-                case 0:
-                    ppm->pixelMatrix[collumn][row].red = number;
-                    break;
-                case 1:
-                    ppm->pixelMatrix[collumn][row].green = number;
-                    break;
-                case 2:
-                    ppm->pixelMatrix[collumn][row].blue = number;
-                    break;
+                    case 0:
+                        // if colour is equal to zero, assign the number to colour red
+                        ppm->pixelMatrix[collumn][row].red = number;
+                        break;
+                    case 1:
+                        // if colour is equal to one, assign the number to colour green
+                        ppm->pixelMatrix[collumn][row].green = number;
+                        break;
+                    case 2:
+                        // if colour is equal to two, assign the number to colour blue
+                        ppm->pixelMatrix[collumn][row].blue = number;
+                        break;
                 }
                 
             }
             
+            // cleaning the character array memory
             memset(numChar, 0, sizeof(char) * 6);
+
+            // setting index to zero
             index = 0;
             continue;
         }
 
+        // inserting charater to current character array
         numChar[index] = ch;
+
+        // incrementing index
         index = index + 1;
     }
     
@@ -409,12 +462,15 @@ struct PPM * getPPM(FILE * f)
 
 void outputPPMFile(struct PPM * ppm, char * outFileName)
 {
+    // initialises the file writer
     FILE * fout = fopen(outFileName, "w");
     
+    // writes format, width, height and coulour maximum
     fprintf(fout, "%s\n", ppm->format);
     fprintf(fout, "%d %d\n", ppm->width,ppm->height);
     fprintf(fout, "%u \n", ppm->colourMax);
 
+    // writes the coulours, pixel by pixel, per each line
     for (size_t i = 0; i < ppm->width; i++)
     {
         for (size_t j = 0; j < ppm->height; j++)
@@ -424,19 +480,23 @@ void outputPPMFile(struct PPM * ppm, char * outFileName)
         }
     }
 
+    // closes file writer
     fclose(fout);
 
+    // frees file pointer
     free(fout);
 }
 
 
 void showPPM(struct PPM * im)
 {
+    /// prints format, width, height and coulour maximum
     printf("printing ppm file\n");
     printf("\n%s\n", im->format);
     printf("%u %u\n", im->width, im->height);
     printf("%u\n",im->colourMax);
 
+    // prints the coulours, pixel by pixel, per each line
     for (size_t i = 0; i < im->width; i++)
     {
         for (size_t j = 0; j < im->height; j++)
@@ -452,12 +512,18 @@ void showPPM(struct PPM * im)
 
 void freePPM(struct PPM * ppm) 
 {
+    // frees each pixel pointer memory
     for (size_t i = 0; i < ppm->width; i++)
     {
+        // goes through the main array and frees each pixel pointer
         struct Pixel * pixel = (struct Pixel *) ppm->pixelMatrix[i];
         free(pixel);
     }
+    
+    // frees the pixel pointer of pointer
     free((struct Pixel *) ppm->pixelMatrix);
+
+    // frees ppm structure
     free(ppm);
 }
 
@@ -465,28 +531,41 @@ void freePPM(struct PPM * ppm)
 
 void wPixelValue(struct Pixel * pixel, int number)
 {
+    // stores the number of iterations, for longer number than 3 bits ones
+    // store the variable i that stores the number of bits
     int maxIterations = 1, i = 3;
 
-    while ( number > auxNumber(i)  )
+    // determines how long in bits the number is
+    while ( number > auxNumber(i) )
     {
         maxIterations++;
         i += 3;
     }
-
+    
+    // i variable will now stores which colour collumn the number is being writen on
     i = 0;
 
     while (i < maxIterations)
     {
+        // determines the current shift
         int shift = i * 3;
+
+        // gets 3 bits from the number to be written
         int bit3 = auxNumber(3) & (number >> shift);
         
+        // gets the first bit of the 3 bits
         int bit = bit3 & 1;
+        // writes the bit in the correct position on the red colour
         pixel->red = wBitPosition(pixel->red, bit, i);
         
+        // gets the second bit of the 3 bits
         bit = (bit3 >> 1) & 1;
+        // writes the bit in the correct position on the red green
         pixel->green = wBitPosition(pixel->green, bit, i);
         
+        // gets the third bit of the 3 bits
         bit = (bit3 >> 2) & 1;
+        // writes the bit in the correct position on the red blue
         pixel->blue = wBitPosition(pixel->blue, bit, i);
         
         i++;
@@ -496,22 +575,36 @@ void wPixelValue(struct Pixel * pixel, int number)
 
 int rPixelValue(struct Pixel * pixel, int length)
 {
+    // store the number being read from the pixel
     int numberRead = 0;
+
+    // iterates through each coulour collumn
     for (size_t i = 0; i < length; i++)
     {
+        // determines the shift for the colour
         int shift = i * 3;
 
+        // gets the bit from the colour red in the correct position
         int rBit = rBitPosition(pixel->red,i);
+        // writes the bit in the number to be read from the pixel
         numberRead = numberRead | (rBit << shift);
 
+        // increment the shift
         shift++;
+        // gets the bit from the colour green in the correct position
         int gBit = rBitPosition(pixel->green,i);
+        // writes the bit in the number to be read from the pixel
         numberRead = numberRead | (gBit << shift);
 
+        // increment the shift
         shift++;
+        // gets the bit from the colour blue in the correct position
         int bBit = rBitPosition(pixel->blue,i);
+        // writes the bit in the number to be read from the pixel
         numberRead = numberRead | (bBit << shift);
     }
+
+    // returns the number to be read
     return numberRead;
 }
 
@@ -519,20 +612,27 @@ int rPixelValue(struct Pixel * pixel, int length)
 
 
 void intToBin(unsigned int number){
+
+    // while the number is bigger than 1
     if (number > 1){
+        // call the function recursively with half of the current number
         intToBin(number/2);
     }
 
+    // gets the remainder of 2, which is either 1 or 0
     printf("%u",number % 2);
 };
 
 
 int auxNumber(int n)
 {
+    // if zero returns 0
     if( n == 0) return 0;
 
+    // if one returns 1
     if( n == 1) return 1;
     
+    // else returns 
     return (auxNumber(n - 1) << 1) | 1;
 }
 
