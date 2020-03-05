@@ -6,6 +6,30 @@
 #include "charList.h"
 
 
+/*
+
+LINKING
+
+gcc -c -o steg.o steg.c
+
+gcc -c -o charList.o charList.c
+
+
+COMPILING
+
+Commands to compile on Linux Ubuntu:
+
+gcc -o steg steg.o charList.o -lm
+
+Commands to compile on Linux Centos:
+
+gcc -o steg steg.o charList.o -std=c99
+
+*/
+
+
+
+// pixel structure to store the colour values
 struct Pixel
 {
     unsigned int red;
@@ -13,7 +37,8 @@ struct Pixel
     unsigned int blue;
 };
 
-
+// PPM file structure to store format, width, heigth, max coulour
+// and a dinamic 2d pixel matrix
 struct PPM
 {
     const char * format;
@@ -23,58 +48,62 @@ struct PPM
     struct Pixel ** pixelMatrix;
 };
 
-
+// prints a binary number
 void intToBin(unsigned int number);
 
-
+// creates a binary number with n 1's of length
 int auxNumber(int n);
 
-
+// inserts a bit in an integer at a certain position
 int wBitPosition(int value, int bit, int pos);
 
-
+// reads a bit in an integer at a certain position
 int rBitPosition(int value, int pos);
 
-
+// gets the length of a string
 int strLength(char * string);
 
-
+// returns a PPM data structure from a file
 struct PPM * getPPM(FILE * f);
 
-
+// prints a PPM data structure 
 void showPPM(struct PPM * im);
 
-
+// writing a new PPM from a given ppm data structure
 void outputPPMFile(struct PPM * ppm, char * outFileName);
 
-
+// encodes a message in a ppm data structure, using a secret integer
 struct PPM * encode(struct PPM * im, char * message, unsigned int mSize, unsigned int secret);
 
-
+// decodes a message from a PPM file, using a secret integer
 char * decode(struct PPM * im, unsigned int secret);
 
-
+// frees memory from a PPM data structure
 void freePPM(struct PPM * ppm);
 
-
+// writes a value on a Pixel structure
 void wPixelValue(struct Pixel * pixel, int number);
 
-
+// reads a value from a pixel structure
 int rPixelValue(struct Pixel * pixel, int length);
 
 
 int main(int argc, char ** argv)
 {
+    // creates a file and ppm pointer
     FILE * file;
     struct PPM * ppm;
 
+    // checks if arguments are correct
     if (argc < 3 || argc > 5)
     {
         printf("\nwrong number of arguments\n\n");
     }
 
+    // initializes a file reader
     file = fopen(argv[1], "r");
 
+    // if file is not found, terminate program
     if(file == NULL)
     {
         printf("File \"%s\" not found!\n\n", argv[1]);
@@ -82,47 +111,62 @@ int main(int argc, char ** argv)
         exit(0);
     }
     
+    // gets ppm data structure from given file
     ppm = getPPM(file);
     
+    // gets the user command
     char command = argv[2][0];
+
 
     if ( command == 'e' )
     {
+        // if user wants to encrypt
+
+        // variables for secret integer and 
         int secret;
-        char message[32];
+        char message[64];
 
-        printf("Message: ");
-        fgets(message,32,stdin);
-
-        printf("\n\nEnter the secret: ");
+        // getting string message and integer secret
+        printf("Please, enter the Message: ");
+        fgets(message,64,stdin);
+        printf("\nEnter the secret: ");
         scanf("%d", &secret);
         
+        // returning encoded ppm file
         struct PPM * encodedPPM = encode(ppm, message, strLength(message), secret);
 
+        // writing encoded ppm file
         outputPPMFile(encodedPPM, argv[3]);
 
     } 
     else if ( command == 'd' )
     {
+        // if user wants to decode message
+
+        // getting integer secret from user
         int secret;
         printf("Secret: ");
         scanf("%d",&secret);
 
+        // returning encoded message from ppm file
         char * msg = decode(ppm,secret);
 
-        printf("Encoded message: %s\n\n", msg);
-
+        // printing encode message
+        printf("\nEncoded Message: %s\n", msg);
     } 
     else if ( command == 's')
     {
+        // printing ppm file on the terminal
         showPPM(ppm);
     }
 
-
+    // close file reader
     fclose(file);
 
+    // free file pointer
     free(file);    
 
+    // free PPM data structure
     freePPM(ppm);
 
 
@@ -132,41 +176,61 @@ int main(int argc, char ** argv)
 
 struct PPM * encode(struct PPM * im, char * message, unsigned int mSize, unsigned int secret)
 {
+    // seeds a secret to the pseudo random generator
     srand(secret);
+
+    // gets the max capacity of the ppm data structure
     unsigned int max = im->height*im->width;
 
-    unsigned char counter = 0, c;
-    
-    unsigned int pos, row, collumn;
+    // initialises the message character index and a character variable
+    unsigned char index = 0, c;
 
-    while (counter <= mSize)
+    // runs while index is greater than message size
+    while (index <= mSize)
     {
-        c = message[counter];
+        // stores current message
+        c = message[index];
         
+        // if character is new line 
+        // skip looop and increment index
         if( c == 10) {
-            counter++;
+            index++;
             continue;
         }
 
+        // loop to write bits on multiple pixels
         for (size_t i = 0; i < 3; i++)
         {
+            // initializing position, row and collumn variables
+            unsigned int pos, row, collumn;
+
+            // pos is withing the ppm capacity bound
             pos = rand() % max;
+
+            // row is equal to the position modulus of height
             row = pos % im->height;
+
+            // collumn is equal to the position division of height
             collumn = pos / im->height;
 
+            // getting the shift on the character binary number
             int shift = 3 * i;
+
+            // extracting 3 bits with the correct shift
             int three_bits = (c >> shift ) & auxNumber(3);
 
+            // getting pixel pointer from correct position
             struct Pixel * pxl = &(im->pixelMatrix[collumn][row]);
 
+            // writing the value on the pixel pointer
             wPixelValue(pxl, three_bits);
-
-
         }
 
-        counter++;
+        // incrementing index
+        index++;
     }
 
+    // returning ppm data structure position
     return im;
 }
 
@@ -181,7 +245,7 @@ char * decode(struct PPM * im, unsigned int secret)
     struct CharNode * charList = (struct CharNode *) malloc(sizeof(struct CharNode));
     charList->length = 0;
     
-    unsigned char c,counter=0;
+    unsigned char c;
 
     while (1)
     {
@@ -204,10 +268,6 @@ char * decode(struct PPM * im, unsigned int secret)
 
         
         if( c == 0) break;
-
-
-
-        counter++;
 
 
         insertCharList(charList, c);
