@@ -3,6 +3,8 @@
 #include <math.h>
 #include <string.h>
 
+#include "charList.h"
+
 
 struct Pixel
 {
@@ -21,98 +23,6 @@ struct PPM
     struct Pixel ** pixelMatrix;
 };
 
-struct CharNode
-{
-    char ch, length;
-    struct CharNode * nextNode;
-};
-
-
-void insertCharList(struct CharNode * chNode, char c)
-{
-    if ( chNode->length == 0 )
-    {
-
-        chNode->ch = c;
-        chNode->length= 1;
-        chNode->nextNode = NULL;
-
-        return;
-    }
-
-    struct CharNode * temp = chNode;
-
-    while (1)
-    {
-        if (temp->nextNode != NULL)
-        {
-            temp->length++;
-            temp = temp->nextNode;
-        }
-        else
-        {
-            temp->length++;
-            temp->nextNode = (struct CharNode *) malloc(sizeof(struct CharNode));
-            temp = temp->nextNode;
-
-            temp->ch = c;
-            temp->length = 1;
-            temp->nextNode = NULL;
-            return;
-        }
-    }
-}
-
-void trasverseCharList(struct CharNode * chNode)
-{
-    struct CharNode * temp;
-    temp = chNode;
-
-    while (temp != NULL)
-    {
-        printf("character: %c, length: %d \n",temp->ch,temp->length);
-
-        temp = temp->nextNode;
-    }
-    
-}
-
-
-void freeMem(struct CharNode * chNode)
-{
-    if (chNode->nextNode)
-    {
-        freeMem(chNode->nextNode);
-    }
-    free(chNode);
-}
-
-char * getMessage(struct CharNode * chNode)
-{
-    char * msg = (char *) malloc(sizeof(char) * chNode->length);
-
-    char counter = 0;
-    struct CharNode * temp = chNode;
-
-    while (temp != NULL)
-    {
-        char ch = temp->ch;
-        msg[counter] = ch;
-        temp = temp->nextNode;
-        counter++;
-    }
-
-    freeMem(chNode);
-    
-    return msg;
-}
-
-
-struct PPM * getPPM(FILE * f);
-
-void showPPM(struct PPM * im);
-
-void outputPPMFile(struct PPM * ppm, char * outFileName);
 
 void intToBin(unsigned int number){
     if (number > 1){
@@ -163,75 +73,24 @@ int strLength(char * string)
 }
 
 
-void wPixelValue(struct Pixel * pixel, int number)
-{
-    int maxIterations = 1, i = 3;
+struct PPM * getPPM(FILE * f);
 
-    while ( number > auxNumber(i)  )
-    {
-        maxIterations++;
-        i += 3;
-    }
+void showPPM(struct PPM * im);
 
-    i = 0;
-
-    while (i < maxIterations)
-    {
-        int shift = i * 3;
-        int bit3 = auxNumber(3) & (number >> shift);
-        
-        int bit = bit3 & 1;
-        pixel->red = wBitPosition(pixel->red, bit, i);
-        
-        bit = (bit3 >> 1) & 1;
-        pixel->green = wBitPosition(pixel->green, bit, i);
-        
-        bit = (bit3 >> 2) & 1;
-        pixel->blue = wBitPosition(pixel->blue, bit, i);
-        
-        i++;
-    }
-
-}
-
-int rPixelValue(struct Pixel * pixel, int length)
-{
-    int numberRead = 0;
-    for (size_t i = 0; i < length; i++)
-    {
-        int shift = i * 3;
-
-        int rBit = rBitPosition(pixel->red,i);
-        numberRead = numberRead | (rBit << shift);
-
-        shift++;
-        int gBit = rBitPosition(pixel->green,i);
-        numberRead = numberRead | (gBit << shift);
-
-        shift++;
-        int bBit = rBitPosition(pixel->blue,i);
-        numberRead = numberRead | (bBit << shift);
-    }
-    return numberRead;
-}
-
-
+void outputPPMFile(struct PPM * ppm, char * outFileName);
 
 struct PPM * encode(struct PPM * im, char * message, unsigned int mSize, unsigned int secret);
 
 char * decode(struct PPM * im, unsigned int secret);
 
+void freePPM(struct PPM * ppm);
 
-void freePPM(struct PPM * ppm) 
-{
-    for (size_t i = 0; i < ppm->width; i++)
-    {
-        struct Pixel * pixel = (struct Pixel *) ppm->pixelMatrix[i];
-        free(pixel);
-    }
-    free((struct Pixel *) ppm->pixelMatrix);
-    free(ppm);
-}
+
+
+void wPixelValue(struct Pixel * pixel, int number);
+
+int rPixelValue(struct Pixel * pixel, int length);
+
 
 int main(int argc, char ** argv)
 {
@@ -538,4 +397,70 @@ void showPPM(struct PPM * im)
     }
     
     printf("\n\n");
+}
+
+
+void freePPM(struct PPM * ppm) 
+{
+    for (size_t i = 0; i < ppm->width; i++)
+    {
+        struct Pixel * pixel = (struct Pixel *) ppm->pixelMatrix[i];
+        free(pixel);
+    }
+    free((struct Pixel *) ppm->pixelMatrix);
+    free(ppm);
+}
+
+
+
+void wPixelValue(struct Pixel * pixel, int number)
+{
+    int maxIterations = 1, i = 3;
+
+    while ( number > auxNumber(i)  )
+    {
+        maxIterations++;
+        i += 3;
+    }
+
+    i = 0;
+
+    while (i < maxIterations)
+    {
+        int shift = i * 3;
+        int bit3 = auxNumber(3) & (number >> shift);
+        
+        int bit = bit3 & 1;
+        pixel->red = wBitPosition(pixel->red, bit, i);
+        
+        bit = (bit3 >> 1) & 1;
+        pixel->green = wBitPosition(pixel->green, bit, i);
+        
+        bit = (bit3 >> 2) & 1;
+        pixel->blue = wBitPosition(pixel->blue, bit, i);
+        
+        i++;
+    }
+
+}
+
+int rPixelValue(struct Pixel * pixel, int length)
+{
+    int numberRead = 0;
+    for (size_t i = 0; i < length; i++)
+    {
+        int shift = i * 3;
+
+        int rBit = rBitPosition(pixel->red,i);
+        numberRead = numberRead | (rBit << shift);
+
+        shift++;
+        int gBit = rBitPosition(pixel->green,i);
+        numberRead = numberRead | (gBit << shift);
+
+        shift++;
+        int bBit = rBitPosition(pixel->blue,i);
+        numberRead = numberRead | (bBit << shift);
+    }
+    return numberRead;
 }
