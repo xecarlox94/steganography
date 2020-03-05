@@ -77,6 +77,16 @@ void trasverseCharList(struct CharNode * chNode)
     
 }
 
+
+void freeMem(struct CharNode * chNode)
+{
+    if (chNode->nextNode)
+    {
+        freeMem(chNode->nextNode);
+    }
+    free(chNode);
+}
+
 char * getMessage(struct CharNode * chNode)
 {
     char * msg = (char *) malloc(sizeof(char) * chNode->length);
@@ -91,18 +101,10 @@ char * getMessage(struct CharNode * chNode)
         temp = temp->nextNode;
         counter++;
     }
+
+    freeMem(chNode);
     
     return msg;
-}
-
-
-void freeMem(struct CharNode * chNode)
-{
-    if (chNode->nextNode)
-    {
-        freeMem(chNode->nextNode);
-    }
-    free(chNode);
 }
 
 
@@ -251,8 +253,6 @@ int main(int argc, char ** argv)
     }
     
     ppm = getPPM(file);
-
-    // showPPM(ppm);
     
     char command = argv[2][0];
 
@@ -274,20 +274,19 @@ int main(int argc, char ** argv)
     } 
     else if ( command == 'd' )
     {
-        // printf("Decoding message from file.\nPlease type your message and secret\n");
         int secret;
         printf("Secret: ");
         scanf("%d",&secret);
 
         char * msg = decode(ppm,secret);
 
-        printf("ULTIMATE MSG: %s\n\n", msg);
+        printf("Encoded message: %s\n\n", msg);
+
+    } 
+    else if ( command == 's')
+    {
+        showPPM(ppm);
     }
-    
-
-
-
-
 
 
     fclose(file);
@@ -305,12 +304,8 @@ struct PPM * encode(struct PPM * im, char * message, unsigned int mSize, unsigne
 {
     srand(secret);
     unsigned int max = im->height*im->width;
-    // printf("max value ppm: %u\n",max);
-
-    // printf("MESSAGE: %s\n\n", message);
 
     unsigned char counter = 0, c;
-    // printf("size of c: %d\n",sizeof(c));
     
     unsigned int pos, row, collumn;
 
@@ -329,15 +324,8 @@ struct PPM * encode(struct PPM * im, char * message, unsigned int mSize, unsigne
             row = pos % im->height;
             collumn = pos / im->height;
 
-            // printf("pos: %d, row: %d, collumn: %d\n", pos, row, collumn);
-
             int shift = 3 * i;
             int three_bits = (c >> shift ) & auxNumber(3);
-
-
-            // printf("bit %d: ", i);
-            // intToBin(three_bits);
-            // printf("\n");
 
             struct Pixel * pxl = &(im->pixelMatrix[collumn][row]);
 
@@ -345,10 +333,6 @@ struct PPM * encode(struct PPM * im, char * message, unsigned int mSize, unsigne
 
 
         }
-
-        // printf("char: %c, ascii: %d, binary: ", c, (int) c);
-        // intToBin(c);
-        // printf("\n");
 
         counter++;
     }
@@ -380,23 +364,12 @@ char * decode(struct PPM * im, unsigned int secret)
             row = pos % im->height;
             collumn = pos / im->height;
 
-            // printf("pos: %d, row: %d, collumn: %d\n", pos, row, collumn);
-
             struct Pixel * pxl = &(im->pixelMatrix[collumn][row]);
 
             int three_bits = rPixelValue(pxl,1);
 
-            // printf("bit %d: ", i);
-            // intToBin(three_bits);
-            // printf("\n");
-
             int shift = 3 * i;
             c = c | (three_bits << shift);
-
-
-            // printf("CURRENT CHAR: ");
-            // intToBin(c);
-            // printf("\n\n");
         }
 
         
@@ -406,26 +379,14 @@ char * decode(struct PPM * im, unsigned int secret)
 
         counter++;
 
-        // charNode
-
-        printf("char: %c, ascii: %d, binary: ", c, (int) c);
-        intToBin(c);
-        printf("\n");
-
 
         insertCharList(charList, c);
 
     }
 
-    trasverseCharList(charList);
-
     
 
     char * message = getMessage(charList);
-
-    printf("this message is %d characters long!\n", charList->length);
-
-    freeMem(charList);
 
     return message;
 }
@@ -555,6 +516,8 @@ void outputPPMFile(struct PPM * ppm, char * outFileName)
     }
 
     fclose(fout);
+
+    free(fout);
 }
 
 
