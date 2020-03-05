@@ -632,7 +632,8 @@ int auxNumber(int n)
     // if one returns 1
     if( n == 1) return 1;
     
-    // else returns 
+    // else returns the result of bitwise 1 OR with result ot the number minus 1 with left shift of one
+    // creates a binary number composed of 1's with length n
     return (auxNumber(n - 1) << 1) | 1;
 }
 
@@ -641,27 +642,48 @@ int wBitPosition(int value, int bit, int pos)
 {
     if ( bit == 0 )
     {
+        // if the bit to be written is 0
+
+        // then do a AND bit operation with the colour value 
+        // and the negation of 1 bits with left shift equal to pos
         return value = value & ~(1UL << pos);
     } 
     else
     {
+        // if the bit to be written is 1
+
+        // then do a OR bit operation with the colour value 
+        // and 1 bits with left shift equal to pos
         return value = value | (1UL << pos);
     }
 }
 
 int rBitPosition(int value, int pos) 
 {
+    // reads the bit value from a specific position
+
+    // AND bitswise operation with value with right shift of position value
+    // with 1 bit 
     return (value >> pos) & 1UL;
 }
 
 int strLength(char * string)
 {
-    char c = string[0], counter = 0;
+    // stores current character
+    char c;
+
+    // initialises the counter to 0 
+    int counter = 0;
+
+    // loops until the end of string
     while ( c != '\0')
     {
+        // increments the counter
         counter++;
+
+        // store the character at position equal to counter
         c = string[counter];
     }
 
-    return (int) counter;
+    return counter;
 }
